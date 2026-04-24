@@ -1,0 +1,15 @@
+body {
+    overflow: hidden;
+}
+
+#map {
+    height: 100vh;
+}
+
+#timeline::-webkit-slider-runnable-track {
+  background: #ccc;
+}
+
+#timeline::-moz-range-track {
+  background-color: #ccc;
+}
