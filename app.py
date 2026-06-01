@@ -4,6 +4,7 @@ import sqlite3
 import requests
 from datetime import datetime, timedelta
 
+from init_db import init_database
 from predictions import update_predictions
 
 app = Flask(__name__)
@@ -66,8 +67,8 @@ def statistics():
     max_mag = float(request.args.get('maxMag', 10))
     start_time = request.args.get('startDate')
     end_time = request.args.get('endDate')
-    min_depth = request.args.get('minDepth', 0)
-    max_depth = request.args.get('maxDepth', 1000)
+    min_depth = float(request.args.get('minDepth', 0))
+    max_depth = float(request.args.get('maxDepth', 1000))
 
     query = '''
     SELECT 
@@ -198,6 +199,7 @@ def update_database():
     conn.close()
 
 if __name__ == '__main__':
+    init_database()
     update_database()
     update_predictions()
 

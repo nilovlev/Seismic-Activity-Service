@@ -47,6 +47,7 @@ async function loadEarthquakes(params = {}) {
 
     const response = await fetch(url);
     allEarthquakes = await response.json();
+    allEarthquakes.reverse();
 
     renderEarthquakes(allEarthquakes);
 }
@@ -70,8 +71,10 @@ function getMarkerColor(depth) {
     return "red"; 
 }
 
-function renderEarthquakes(features) {
-    markersLayer.clearLayers();
+function renderEarthquakes(features, clear = true) {
+    if (clear) {
+        markersLayer.clearLayers();
+    }
     
     const markerRadius = parseFloat(document.getElementById("markerRadius").value);
     const fillOpacity = parseFloat(document.getElementById("fillOpacity").value);
@@ -352,4 +355,54 @@ async function displayAnalysis() {
     document.getElementById('map-settings').style.display = 'none';
     document.getElementById('map-buttons').style.display = 'none';
     document.getElementById('analysis-buttons').style.display = 'block';
+}
+
+let animation = null;
+let lastCount = 0;
+
+function updateTimeline() {
+    let value = document.getElementById('timeline').value;
+    let count = Math.floor(allEarthquakes.length * value / 100);
+
+    if (count > lastCount) {
+        renderEarthquakes(allEarthquakes.slice(lastCount, count), false);
+    } else {
+        renderEarthquakes(allEarthquakes.slice(0, count));
+    }
+
+    lastCount = count;
+}
+
+function switchAnimation() {
+    const animationButton = document.getElementById('animationButton');
+
+    if (animation) {
+        clearInterval(animation);
+        animation = null;
+
+        animationButton.textContent = 'Start';
+        animationButton.classList.remove('btn-danger');
+        animationButton.classList.add('btn-success');
+    } else {
+        if (document.getElementById('timeline').value == 0) {
+            updateTimeline();
+        }
+
+        animation = setInterval(timelineStep, 100);
+
+        animationButton.textContent = 'Stop';
+        animationButton.classList.remove('btn-success');
+        animationButton.classList.add('btn-danger');
+    }
+}
+
+function timelineStep() {
+    let timeline = document.getElementById('timeline');
+    if (timeline.value >= 100) {
+        switchAnimation();
+        return;
+    }
+
+    timeline.value++;
+    updateTimeline();
 }
